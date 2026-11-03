@@ -35,6 +35,7 @@ PRODUCT_TARGET_VNDK_VERSION := 30
 
 # Init files and fstab
 PRODUCT_PACKAGES += \
+    fstab.default.ramdisk \
     fstab.ramplus \
     init.qcom.rc \
     init.qcom.recovery.rc \
@@ -74,6 +75,7 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/init/fstab.default:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.default \
+    $(LOCAL_PATH)/init/fstab.default:$(TARGET_COPY_OUT_RAMDISK)/fstab.default \
     $(LOCAL_PATH)/init/fstab.default:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.default
 
 $(call soong_config_set,libinit,vendor_init_lib,//$(COMMON_PATH):libinit_sm7225)
