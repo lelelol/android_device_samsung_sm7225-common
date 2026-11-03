@@ -148,7 +148,8 @@ vendor/etc/hqm_device.xml
 vendor/etc/init/android.hardware.bluetooth@1.0-service-qti.rc
 vendor/etc/init/android.hardware.drm@1.3-service.widevine.rc
 vendor/etc/init/android.hardware.gnss@2.1-service-qti.rc
-vendor/etc/init/android.hardware.media.omx@1.0-service.rc
+# OMX service built from source ships its own init script
+#vendor/etc/init/android.hardware.media.omx@1.0-service.rc
 vendor/etc/init/android.hardware.neuralnetworks@1.3-service-qti.rc
 vendor/etc/init/android.hardware.wifi@1.0-service.rc
 vendor/etc/init/argos.rc

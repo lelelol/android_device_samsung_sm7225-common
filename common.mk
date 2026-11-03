@@ -504,7 +504,19 @@ PRODUCT_COPY_FILES += \
 # VINTF: 4.19 kernel is older than any FCM kernel requirement
 PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
 
-# Media: no OMX service on A17, so let CCodec build encoder input surfaces in-process
-# (without it every surface recording failed: "Failed to connect to OMX", screenrecord SIGSEGV).
+# Media: OMX stack from source (the A11 Samsung OMX blobs are ABI-incompatible with A17 libgui/libui);
+# libOmxVdec/libOmxVenc are dlopened by libOmxCore, the rest are the service's vendor libs.
+PRODUCT_PACKAGES += \
+    aconfig_libgui_flags_c_lib.vendor \
+    android.hardware.media.omx@1.0-service \
+    libavservices_minijail.vendor \
+    libcap.vendor \
+    libminijail.vendor \
+    libOmxVdec \
+    libOmxVenc \
+    libstagefright_bufferqueue_helper.vendor \
+    libstagefright_omx.vendor
+
+# Media: with IOmx present, encoders get their input surface from the OMX service (hardware encoder).
 PRODUCT_VENDOR_PROPERTIES += \
-    debug.stagefright.c2inputsurface=-1
+    debug.stagefright.c2inputsurface=0
