@@ -10,3 +10,9 @@ allow tee vendor_data_file:dir create_dir_perms;
 allow tee vendor_data_file:file create_file_perms;
 r_dir_file(hal_gatekeeper_default, vendor_data_file)
 set_prop(tee, vendor_qseecomd_prop)
+
+# A17 labels /data/vendor/gatekeeper gatekeeper_vendor_data_file (stock: vendor_gatekeeper_data_file,
+# writable by tee). Without it the TZ gatekeeper cannot save its throttling record and every
+# lockscreen verify after a reboot fails with -506.
+allow tee gatekeeper_vendor_data_file:dir create_dir_perms;
+allow tee gatekeeper_vendor_data_file:file create_file_perms;
