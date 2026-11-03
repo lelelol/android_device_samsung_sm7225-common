@@ -1,0 +1,3 @@
+# Samsung lazy HALs whose init scripts declare prebuilt-only HIDL interfaces
+# (kept out of etc/init so host_init_verifier does not reject them).
+import /vendor/etc/init/hw

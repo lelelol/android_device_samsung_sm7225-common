@@ -8,6 +8,7 @@ COMMON_PATH := device/samsung/sm7225-common
 BUILD_BROKEN_DUP_RULES := true
 BUILD_BROKEN_DUP_SYSPROP := true
 BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+BUILD_BROKEN_PREBUILT_ELF_FILES := true
 
 # A/B configuration
 AB_OTA_UPDATER := false
@@ -57,8 +58,8 @@ TARGET_2ND_CPU_VARIANT_RUNTIME := := cortex-a55
 # Kernel config
 TARGET_KERNEL_SOURCE        := kernel/samsung/sm7225
 TARGET_KERNEL_CONFIG := \
-    vendor/lagoon-perf_defconfig \
-    vendor/samsung/lagoon-sec-common.config
+    vendor/lito-perf_defconfig \
+    vendor/samsung/lito-sec-common.config
 TARGET_KERNEL_NO_GCC	    := true
 TARGET_KERNEL_ARCH          := arm64
 TARGET_KERNEL_HEADER_ARCH   := arm64
@@ -206,7 +207,8 @@ DEVICE_MANIFEST_FILE := $(COMMON_PATH)/configs/manifest.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
     hardware/qcom-caf/common/vendor_framework_compatibility_matrix_legacy.xml \
-    hardware/samsung/vintf/samsung_framework_compatibility_matrix.xml
+    hardware/samsung/vintf/samsung_framework_compatibility_matrix.xml \
+    $(COMMON_PATH)/configs/framework_compatibility_matrix.xml
 
 DEVICE_MATRIX_FILE := hardware/qcom-caf/common/compatibility_matrix.xml
 

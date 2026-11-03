@@ -35,12 +35,12 @@ PRODUCT_TARGET_VNDK_VERSION := 30
 
 # Init files and fstab
 PRODUCT_PACKAGES += \
-    fstab.default \
-    fstab.default.ramdisk \
     fstab.ramplus \
     init.qcom.rc \
     init.qcom.recovery.rc \
     init.qcom.usb.rc \
+    init.qti.media.rc \
+    init.qti.media.sh \
     init.samsung.battery.rc \
     init.samsung.bsp.rc \
     init.samsung.display.rc \
@@ -73,8 +73,8 @@ PRODUCT_PACKAGES += \
     init.qti.qcv.sh
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/init/fstab.qcom:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.default \
-    $(LOCAL_PATH)/init/fstab.qcom:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.default
+    $(LOCAL_PATH)/init/fstab.default:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.default \
+    $(LOCAL_PATH)/init/fstab.default:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.default
 
 $(call soong_config_set,libinit,vendor_init_lib,//$(COMMON_PATH):libinit_sm7225)
 
@@ -141,8 +141,7 @@ PRODUCT_COPY_FILES += \
 
 # Bluetooth
 PRODUCT_PACKAGES += \
-    android.hardware.bluetooth.audio-impl \
-    android.hardware.bluetooth.audio@2.0-impl
+    android.hardware.bluetooth.audio-impl
 
 # Camera
 PRODUCT_PACKAGES += \
@@ -151,9 +150,6 @@ PRODUCT_PACKAGES += \
 $(call soong_config_set_bool,samsungCameraVars,needs_sec_reserved_field,true)
 $(call soong_config_set,samsungCameraVars,extra_ids,54) # ID=54 is macro
 
-# CAS
-PRODUCT_PACKAGES += \
-    android.hardware.cas@1.2-service-lazy
 
 # Charger
 PRODUCT_PACKAGES += \
@@ -290,6 +286,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     com.android.nfc_extras \
     libbase_shim \
+    libaudiotypeconv_shim \
+    libc2compat_shim \
+    libui_compat_shim \
     nqnfcinfo \
     Tag
 
@@ -385,8 +384,7 @@ PRODUCT_PACKAGES += \
     secril_config_svc \
     sehradiomanager
 
-PRODUCT_COPY_FILES += \
-    $(COMMON_PATH)/configs/ril/sehradiomanager.conf:$(TARGET_COPY_OUT_VENDOR)/etc/sehradiomanager.conf
+PRODUCT_COPY_FILES +=
 
 # Sensors
 PRODUCT_PACKAGES += \
@@ -471,7 +469,7 @@ PRODUCT_COPY_FILES += \
 
 # WiFi Firmware Symlinks
 PRODUCT_PACKAGES += \
-    firmware_qca6750_WCNSS_qcom_cfg.ini_symlink \
+    firmware_wlan_WCNSS_qcom_cfg.ini_symlink \
     firmware_wlan_WCNSS_qcom_cfg.ini_symlink
 
 # Wifi Display
@@ -494,3 +492,10 @@ TARGET_ODM_PROP += $(COMMON_PATH)/odm.prop
 
 # Inherit proprietary blobs
 $(call inherit-product, vendor/samsung/sm7225-common/sm7225-common-vendor.mk)
+
+# Lazy HAL init scripts installed under vendor/etc/init/hw
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/init/init.samsung.lazyhals.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.samsung.lazyhals.rc
+
+# VINTF: 4.19 kernel is older than any FCM kernel requirement
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false

@@ -24,5 +24,3 @@ dontaudit system_app system_suspend_control_service:service_manager { find };
 dontaudit system_app system_suspend_control_internal_service:service_manager { find };
 
 # UDFPS
-set_prop(system_app, vendor_fingerprint_prop)
-get_prop(system_app, vendor_fingerprint_prop)

@@ -4,6 +4,9 @@ user: AID_SYSTEM
 group: AID_RADIO
 caps: 0
 
+[AID_VENDOR_SECDIR]
+value: 5050
+
 [AID_VENDOR_QTI_DIAG]
 value:2901
 

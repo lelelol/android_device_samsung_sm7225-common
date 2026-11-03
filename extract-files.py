@@ -9,6 +9,7 @@ from extract_utils.fixups_blob import (
     blob_fixups_user_type,
 )
 from extract_utils.fixups_lib import (
+    lib_fixup_remove,
     lib_fixups,
     lib_fixups_user_type,
 )
@@ -31,6 +32,22 @@ namespace_imports = [
 
 lib_fixups: lib_fixups_user_type = {
     **lib_fixups,
+    # SM-T735 Android 11-era blobs: drop build-time deps that have no module on 16;
+    # they resolve at runtime from the VNDK v30 apex or the vendor partition.
+    (
+        'android.hardware.common-V1-ndk_platform',
+        'android.hardware.light-V1-ndk_platform',
+        'libsdm-color',
+        'libstagefright_bufferqueue_helper_vendor',
+        'sound_trigger.primary.lito',
+        'vendor.samsung.frameworks.security.dsms-V1-ndk_platform',
+        'vendor.samsung.hardware.hyper-V2-ndk_platform',
+        'vendor.samsung.hardware.media.converter-V1-ndk_platform',
+        'vendor.samsung.hardware.security.fkeymaster-V1-ndk_platform',
+        'vendor.samsung.hardware.security.widevine.keyprov-V1-ndk_platform',
+        'vendor.samsung.hardware.snap-V1-ndk_platform',
+        'vintf-codecsolution-V2-ndk_platform',
+    ): lib_fixup_remove,
 }
 
 blob_fixups: blob_fixups_user_type = {
@@ -42,15 +59,22 @@ blob_fixups: blob_fixups_user_type = {
         ),
     ('vendor/lib64/hw/gatekeeper.mdfpp.so', 'vendor/lib64/libkeymaster_helper.so', 'vendor/lib64/libskeymaster4device.so'): blob_fixup()
         .replace_needed('libcrypto.so', 'libcrypto-v33.so'),
-    ('vendor/lib/libwvhidl.so', 'vendor/lib/mediadrm/libwvdrmengine.so'): blob_fixup()
-        .add_needed('libcrypto_shim.so'),
-    ('vendor/lib/unihal_main@2.15.so', 'vendor/lib64/unihal_main@2.15.so'): blob_fixup()
-        .add_needed('libui_shim.so'),
+    # SM-T735 blobs (option B): shims validated on lineage-22.2
+    ('vendor/lib/unihal_main@2.15.so', 'vendor/lib64/unihal_main@2.15.so',
+     'vendor/lib/libscaler_hw.unifunc.so', 'vendor/lib64/libscaler_hw.unifunc.so',
+     'vendor/lib/libscaler_sw.unifunc.so', 'vendor/lib64/libscaler_sw.unifunc.so'): blob_fixup()
+        .add_needed('libui_compat_shim.so'),
+    'vendor/lib64/libSecC2ComponentStore.so': blob_fixup()
+        .add_needed('libc2compat_shim.so'),
+    ('vendor/lib/hw/android.hardware.audio@6.0-impl.so', 'vendor/lib64/hw/android.hardware.audio@6.0-impl.so',
+     'vendor/lib/libaudiofoundation.so', 'vendor/lib64/libaudiofoundation.so',
+     'vendor/lib/libeffectsconfig.so', 'vendor/lib64/libeffectsconfig.so'): blob_fixup()
+        .add_needed('libaudiotypeconv_shim.so'),
     ('vendor/lib64/nfc_nci_nxpsn.so'): blob_fixup()
         .add_needed('libbase_shim.so'),
     ('vendor/lib64/libdpps.so'): blob_fixup()
         .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
-    ('vendor/lib64/vendor.qti.hardware.camera.postproc@1.0-service-impl.so': blob_fixup()
+    'vendor/lib64/vendor.qti.hardware.camera.postproc@1.0-service-impl.so': blob_fixup()
         .sig_replace('9A 0A 00 94', '1F 20 03 D5'),
 }  # fmt: skip
 
