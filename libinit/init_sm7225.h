@@ -21,6 +21,7 @@ enum device_variant {
     VARIANT_A526U1,
     VARIANT_A526W,
     VARIANT_E5260,
+    VARIANT_T735,
     VARIANT_MAX
 };
 
@@ -114,6 +115,11 @@ static const variant china_models_a52 = {
     .codename = "a52xq"
 };
 
+static const variant lte_models_gts7xllite = {
+    .model = "SM-T735",
+    .codename = "gts7xllite"
+};
+
 static const variant *all_variants[VARIANT_MAX] = {
     &international_models_m23,
     &india_models_m23,
@@ -132,6 +138,7 @@ static const variant *all_variants[VARIANT_MAX] = {
     &america2_models_a52,
     &canada_models_a52,
     &china_models_a52,
+    &lte_models_gts7xllite,
 };
 
 #endif // INIT_SEC_H

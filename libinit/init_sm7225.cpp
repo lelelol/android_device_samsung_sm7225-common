@@ -43,11 +43,17 @@ void vendor_load_properties()
 
     model = "SM-" + bl_model;
 
+    // The bootloader version starts with the model without "SM-" (T736BXX..., T735XX...).
+    // Match by prefix and keep the longest hit: a fixed 5-char slice reads SM-T735 as
+    // "SM-T735X", and A526U1 must not resolve to A526U.
+    size_t best_len = 0;
     for (size_t i = 0; i < VARIANT_MAX; i++) {
-        std::string model_ = all_variants[i]->model;
-        if (model.compare(model_) == 0) {
+        const std::string& model_ = all_variants[i]->model;
+        const std::string bl_prefix = model_.substr(3);
+        if (bootloader.rfind(bl_prefix, 0) == 0 && bl_prefix.size() > best_len) {
+            best_len = bl_prefix.size();
+            model = model_;
             device = all_variants[i]->codename;
-            break;
         }
     }
 
