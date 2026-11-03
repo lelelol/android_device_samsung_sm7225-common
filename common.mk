@@ -504,10 +504,6 @@ PRODUCT_COPY_FILES += \
 # VINTF: 4.19 kernel is older than any FCM kernel requirement
 PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
 
-# T735 DEBUG ONLY: boot log persistence (remove for release)
-PRODUCT_COPY_FILES += \
-    $(COMMON_PATH)/init/t735_debuglog.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/t735_debuglog.rc
-
 # Media: no OMX service on A17, so let CCodec build encoder input surfaces in-process
 # (without it every surface recording failed: "Failed to connect to OMX", screenrecord SIGSEGV).
 PRODUCT_VENDOR_PROPERTIES += \
