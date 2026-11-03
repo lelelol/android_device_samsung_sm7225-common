@@ -71,11 +71,6 @@ blob_fixups: blob_fixups_user_type = {
     ('vendor/etc/seccomp_policy/samsung.software.media.c2-base-policy',
      'vendor/etc/seccomp_policy/codec2.vendor.base-arm.policy'): blob_fixup()
         .regex_replace(r'(?m)^mremap: arg3 == 3$', 'mremap: arg3 == 3 || arg3 == MREMAP_MAYMOVE'),
-    # Android 11 camera blobs import common::V1_0::helper symbols that current AOSP renamed to
-    # common::helper (same ABI); camera_shim/ re-exports the old names.
-    ('vendor/lib64/vendor.samsung.hardware.camera.provider@4.0-legacy.so',
-     'vendor/lib64/vendor.samsung.hardware.camera.device@5.0-impl.so'): blob_fixup()
-        .add_needed('libcamera_helper_v1_0_shim.so'),
     'vendor/lib64/libSecC2ComponentStore.so': blob_fixup()
         .add_needed('libc2compat_shim.so'),
     ('vendor/lib/hw/android.hardware.audio@6.0-impl.so', 'vendor/lib64/hw/android.hardware.audio@6.0-impl.so',

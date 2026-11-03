@@ -141,8 +141,6 @@ PRODUCT_PACKAGES += \
     android.hardware.bluetooth.audio-impl
 
 # Camera: stock vendor.samsung.hardware.camera.provider@4.0 (HIDL legacy/0) only
-PRODUCT_PACKAGES += \
-    libcamera_helper_v1_0_shim
 $(call soong_config_set_bool,samsungCameraVars,needs_sec_reserved_field,true)
 $(call soong_config_set,samsungCameraVars,extra_ids,54) # ID=54 is macro
 
