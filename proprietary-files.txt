@@ -155,7 +155,8 @@ vendor/etc/init/android.hardware.wifi@1.0-service.rc
 vendor/etc/init/argos.rc
 vendor/etc/init/btcoex_cont_config.rc
 vendor/etc/init/camera.unihal.rc
-vendor/etc/init/cass.rc
+# cass (VaultKeeper modem daemon) is denied vendor_vaultkeeper_prop and exits every ~15 s: keep it from looping
+#vendor/etc/init/cass.rc
 vendor/etc/init/dataadpl.rc
 vendor/etc/init/emservice.rc
 vendor/etc/init/init.audio.samsung.rc
