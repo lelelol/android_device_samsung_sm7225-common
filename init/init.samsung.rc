@@ -28,12 +28,17 @@
 #
 #
 
+import /vendor/etc/init/hw/init.fod.rc
+import /vendor/etc/init/hw/init.samsung.battery.rc
 import /vendor/etc/init/hw/init.samsung.bsp.rc
 import /vendor/etc/init/hw/init.samsung.display.rc
 
 on early-init
     mkdir /mnt/vendor/efs 0771 radio system
     mkdir /mnt/vendor/persist 0771 root system
+
+on post-fs-data
+    mkdir /data/vendor/gatekeeper 0770 system system
 
 on init
     symlink /dev/block/bootdevice/by-name/steady  /dev/block/steady
@@ -70,16 +75,34 @@ on post-fs-data
     chmod 0771 /spu
     restorecon /spu
 
-    # gts7xllite: no fingerprint sensor (fingerprint/biometrics setup removed)
+    # Fingerprint sensor
+    chmod 0660 /dev/esfp0
+    chown system system /dev/esfp0
+    chmod 0660 /dev/goodix_fp
+    chown system system /dev/goodix_fp
 
-    mkdir /data/vendor/gatekeeper 0770 system system
+    chown system radio /sys/class/fingerprint/fingerprint/type_check
+    chown system radio /sys/class/fingerprint/fingerprint/name
+    chown system radio /sys/class/fingerprint/fingerprint/vendor
+    chown system radio /sys/class/fingerprint/fingerprint/adm
+    chown system radio /sys/class/fingerprint/fingerprint/bfs_values
+    chown system radio /sys/class/fingerprint/fingerprint/hbm
+    chown system radio /sys/class/fingerprint/fingerprint/position
+    chown system radio /sys/class/fingerprint/fingerprint/intcnt
+    chown system radio /sys/class/fingerprint/fingerprint/resetcnt
+    chown system radio /sys/class/fingerprint/fingerprint/rb
+
+    mkdir /data/vendor/biometrics 0770 system system
+    mkdir /data/vendor/fpSnrTest 0770 system system
+    mkdir /efs/biometrics 0770 system system
+    mkdir /efs/biometrics/meta 0770 system system
 
 on early-boot
  # Firmware CUSTOMIZED_PATH
     chown system radio /sys/module/firmware_class/parameters/path
 
  # Permissions for Touchscreen
-    chown system radio /sys/class/sec/tsp/cmd
+    chown system system /sys/class/sec/tsp/cmd
     chown system system /sys/class/sec/tsp/input/enabled
     chmod 0660 /sys/class/sec/tsp/input/enabled
     chown system system /sys/class/sec/tsp/enabled
@@ -91,10 +114,7 @@ on early-boot
     chown system system /sys/class/sec/tsp/virtual_prox
     chown system system /sys/class/sec/tsp/sensitivity_mode
     chown system system /sys/class/sec/tsp/prox_power_off
-
- # Fast charge control (vendor.lineage.health IFastCharge)
-    chown system system /sys/class/sec/switch/afc_disable
-
+ 
  # Permission for Securetouch
     chown system system /sys/class/sec/ss_touch/secure/secure_touch_enable
     chown system system /sys/class/sec/tsp1/input/secure_touch_enable
@@ -129,9 +149,6 @@ on early-boot
 
 # pogo keyboard
     chown system system /sys/class/sec/sec_keypad/fw_update
-
-# Lineage charging control (vendor.lineage.health-service.default)
-    chown system system /sys/class/power_supply/battery/batt_slate_mode
 
 on boot
 # Permission for nfc, eSE driver
@@ -241,4 +258,8 @@ service factory_ssc /vendor/bin/factory.ssc
     group system radio inet diag net_admin net_raw sdcard_rw sdcard_r media_rw
     disabled
 
-# gts7xllite: no fingerprint sensor -> do not start goodixd
+# FINGERPRINT FRAMEWORK : starts goodixfingerprintd
+service goodixd /vendor/bin/goodixfingerprintd
+    class late_start
+    user system
+    group media_rw system

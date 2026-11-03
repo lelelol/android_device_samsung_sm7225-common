@@ -13,6 +13,10 @@ $(call inherit-product, hardware/qcom-caf/common/common.mk)
 
 # Partitions
 
+PRODUCT_PACKAGES += \
+    vendor_dsp_mountpoint \
+    vendor_firmware_mnt_mountpoint \
+    vendor_firmware-modem_mountpoint
 
 PRODUCT_BUILD_SUPER_PARTITION := false
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
@@ -28,10 +32,8 @@ PRODUCT_PACKAGES += \
 
 # VNDK
 PRODUCT_TARGET_VNDK_VERSION := 30
-PRODUCT_EXTRA_VNDK_VERSIONS := 30
 
 # Init files and fstab
-# (remaining init-*.rc and init-*.sh come as stock blobs from vendor/)
 PRODUCT_PACKAGES += \
     fstab.default \
     fstab.default.ramdisk \
@@ -39,27 +41,40 @@ PRODUCT_PACKAGES += \
     init.qcom.rc \
     init.qcom.recovery.rc \
     init.qcom.usb.rc \
-    init.qcom.factory.rc \
-    init.qti.ufs.rc \
+    init.samsung.battery.rc \
     init.samsung.bsp.rc \
     init.samsung.display.rc \
     init.samsung.rc \
+    init.fingerprint.rc \
+    init.fod.rc \
+    init.ramplus.rc \
     init.target.rc \
-    init.vendor.rilcommon.rc \
+    ipa_fws.rc \
+    ueventd.qcom.rc \
+    wifi_qcom.rc \
+    wifi_sm7225.rc \
+    init.audio.samsung.rc \
+    init.nfc.samsung.rc \
+    init.vendor.onebinary.rc \
     vendor.samsung.rilchip.qcom.rc \
-    ueventd.qcom.rc
+    init.vendor.rilcommon.rc \
+    init.vendor.sensors.rc
 
-# libapexsupport is LLNDK but missing from the v30 LLNDK list
-# (ro.vndk.version=30 -> linkerconfig uses the APEX list, Android 11 state).
-# Without a requireLibs entry the vendor default namespace gets no link
-# to it and source-built vendor binaries (libbinder) die on load.
-# Do NOT copy it to /vendor/lib - that would be a duplicate provider
-# and linkerconfig aborts entirely.
-PRODUCT_VENDOR_LINKER_CONFIG_FRAGMENTS += \
-    $(COMMON_PATH)/linkerconfig/vendor-linker-config.json
+# Init Files (Vendor)
+PRODUCT_PACKAGES += \
+    init.class_main.sh \
+    init.qcom.class_core.sh \
+    init.qcom.early_boot.sh \
+    init.qcom.post_boot.sh \
+    init.qcom.sh \
+    init.qti.chg_policy.sh \
+    init.qti.dcvs.sh \
+    init.qti.early_init.sh \
+    init.qti.qcv.sh
 
-# fstab.default is installed via soong modules (init/Android.bp):
-# fstab.default -> /vendor/etc, fstab.default.ramdisk -> boot ramdisk root
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/init/fstab.qcom:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.default \
+    $(LOCAL_PATH)/init/fstab.qcom:$(TARGET_COPY_OUT_VENDOR)/etc/fstab.default
 
 $(call soong_config_set,libinit,vendor_init_lib,//$(COMMON_PATH):libinit_sm7225)
 
@@ -68,18 +83,15 @@ PRODUCT_PACKAGES += \
     android.hardware.audio.service \
     android.hardware.audio@7.0-impl.samsung-sm7225 \
     android.hardware.audio.effect@7.0-impl \
-    android.hardware.soundtrigger@2.3-impl_vendor \
+    android.hardware.soundtrigger@2.3-impl \
     sound_trigger.primary.lito \
     audio.bluetooth.default \
     audio.r_submix.default \
-    audio.usb.default_vendor \
+    audio.usb.default \
     libqcomvisualizer \
     libqcomvoiceprocessing \
-    libaudiotypeconv_shim \
     libqcompostprocbundle \
-    libui_compat_shim \
-    libvolumelistener \
-    libprocessgroup.vendor
+    libvolumelistener
 
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/audio/configs/a2dpsink_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/a2dpsink_audio_policy_configuration.xml \
@@ -119,7 +131,7 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_COPY_FILES += \
     frameworks/av/services/audiopolicy/config/usb_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/usb_audio_policy_configuration.xml \
-    $(COMMON_PATH)/audio/configs/audio_policy_volumes.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_volumes.xml \
+    frameworks/av/services/audiopolicy/config/audio_policy_volumes.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_volumes.xml \
     frameworks/av/services/audiopolicy/config/bluetooth_audio_policy_configuration_7_0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth_audio_policy_configuration_7_0.xml \
     frameworks/av/services/audiopolicy/config/hearing_aid_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/hearing_aid_audio_policy_configuration.xml \
     frameworks/av/services/audiopolicy/config/default_volume_tables.xml:$(TARGET_COPY_OUT_VENDOR)/etc/default_volume_tables.xml \
@@ -132,9 +144,10 @@ PRODUCT_PACKAGES += \
     android.hardware.bluetooth.audio-impl \
     android.hardware.bluetooth.audio@2.0-impl
 
-# Camera — Stock proprietary provider covers ICameraProvider/legacy/0 +
-# ISehCameraProvider/legacy/0; the AIDL provider-service only crashed while
-# competing for /dev/video0.
+# Camera
+PRODUCT_PACKAGES += \
+    android.hardware.camera.provider-service.samsung
+
 $(call soong_config_set_bool,samsungCameraVars,needs_sec_reserved_field,true)
 $(call soong_config_set,samsungCameraVars,extra_ids,54) # ID=54 is macro
 
@@ -168,7 +181,6 @@ PRODUCT_PACKAGES += \
     vendor.qti.hardware.memtrack-service \
     gralloc.qcom \
     libsdmcore \
-    libsdmextension \
     libsdedrm
 
 ifneq ($(TARGET_IS_TABLET),true)
@@ -179,9 +191,7 @@ endif
 
 # DRM
 PRODUCT_PACKAGES += \
-    android.hardware.drm-service.clearkey \
-    android.hardware.drm@1.3.vendor \
-    android.hardware.drm@1.4.vendor
+    android.hardware.drm-service.clearkey
 
 # Fastbootd
 PRODUCT_PACKAGES += \
@@ -190,7 +200,19 @@ PRODUCT_PACKAGES += \
 # File System
 TARGET_FS_CONFIG_GEN := $(COMMON_PATH)/config.fs
 
-# gts7xllite has no fingerprint sensor
+# Fingerprint
+ifeq ($(TARGET_HAS_UDFPS),true)
+PRODUCT_PACKAGES += \
+    android.hardware.biometrics.fingerprint@2.3-service-samsung.sm7225
+else
+PRODUCT_PACKAGES += \
+    android.hardware.biometrics.fingerprint-service.samsung
+endif
+
+# FM
+PRODUCT_PACKAGES += \
+    android.hardware.broadcastradio@1.0-impl \
+    FMRadio
 
 # Gatekeeper
 PRODUCT_PACKAGES += \
@@ -202,6 +224,11 @@ PRODUCT_PACKAGES += \
     android.hardware.health-service.samsung \
     android.hardware.health-service.samsung-recovery
 
+$(call soong_config_set,lineage_health,charging_control_charging_path,/sys/class/power_supply/battery/batt_slate_mode)
+$(call soong_config_set,lineage_health,charging_control_charging_enabled,0)
+$(call soong_config_set,lineage_health,charging_control_charging_disabled,1)
+$(call soong_config_set_bool,lineage_health,charging_control_supports_bypass,false)
+
 # Kernel
 PRODUCT_ENABLE_UFFD_GC := false
 
@@ -209,16 +236,9 @@ PRODUCT_ENABLE_UFFD_GC := false
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/keylayout/sec_touchscreen.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/sec_touchscreen.kl
 
-# Input device config
-PRODUCT_COPY_FILES += \
-    $(COMMON_PATH)/configs/idc/sec_e-pen.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/sec_e-pen.idc
-
 # Keymaster
 PRODUCT_PACKAGES += \
-    android.hardware.keymaster@4.0-service.samsung \
-    libcrypto-v33 \
-    libkeymaster41.vendor \
-    libkeymaster4_1support.vendor
+    android.hardware.keymaster@4.0-service.samsung
 
 $(call soong_config_set,samsungVars,target_keymaster4_library,//vendor/samsung/sm7225-common:libskeymaster4device)
 
@@ -266,12 +286,28 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video_le.xml
 
-# Source-built replacement for the A11 vendor OMX BufferQueue bridge
-# (was: vendor/lib/libstagefright_bufferqueue_helper_vendor.so blob).
-# Rebuilt from AOSP GraphicBufferSource + the Samsung FrucFacade ABI;
-# fixes the A11->A14 framework ABI mismatches that broke video recording.
+# NFC
 PRODUCT_PACKAGES += \
-    libstagefright_bufferqueue_helper_vendor
+    com.android.nfc_extras \
+    libbase_shim \
+    nqnfcinfo \
+    Tag
+
+PRODUCT_COPY_FILES += \
+    device/samsung/sm7225-common/configs/nfc/libnfc-nxp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nxp.conf \
+    device/samsung/sm7225-common/configs/nfc/libnfc-nxp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nxp_RF.conf
+
+# NFC Permissions
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.nfc.ese.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.ese.xml \
+    frameworks/native/data/etc/android.hardware.nfc.hcef.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.hcef.xml \
+    frameworks/native/data/etc/android.hardware.se.omapi.ese.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.se.omapi.ese.xml \
+    frameworks/native/data/etc/android.hardware.nfc.uicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.uicc.xml \
+    frameworks/native/data/etc/android.hardware.se.omapi.uicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.se.omapi.uicc.xml \
+    frameworks/native/data/etc/com.nxp.mifare.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.nxp.mifare.xml \
+    frameworks/native/data/etc/android.hardware.nfc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.xml \
+    frameworks/native/data/etc/android.hardware.nfc.hce.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.hce.xml \
+    frameworks/native/data/etc/com.android.nfc_extras.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.android.nfc_extras.xml
 
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/task_profiles.json:$(TARGET_COPY_OUT_VENDOR)/etc/task_profiles.json
@@ -282,11 +318,13 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.audio.pro.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.audio.pro.xml \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
-    frameworks/native/data/etc/android.hardware.camera.autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.autofocus.xml \
+    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.flash-autofocus.xml \
     frameworks/native/data/etc/android.hardware.camera.front.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.camera.full.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.full.xml \
     frameworks/native/data/etc/android.hardware.camera.raw.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.raw.xml \
+    frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.location.gps.xml \
+    frameworks/native/data/etc/android.hardware.nfc.uicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.uicc.xml \
     frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \
     frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.accelerometer.xml \
     frameworks/native/data/etc/android.hardware.sensor.compass.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.compass.xml \
@@ -334,7 +372,7 @@ PRODUCT_COPY_FILES += \
 TARGET_FWK_SUPPORTS_FULL_VALUEADDS := true
 
 PRODUCT_PACKAGES += \
-    libjson_vendor
+    libjson
 
 # QTI fwk-detect
 PRODUCT_PACKAGES += \
@@ -347,28 +385,13 @@ PRODUCT_PACKAGES += \
     secril_config_svc \
     sehradiomanager
 
-# RenderScript
-# No android.hardware.renderscript@1.0-impl blob and no manifest entry on
-# purpose: the source-built impl module carries
-# runtime_libs = [libRS_internal, libRSDriver], so installing the impl (the
-# blob copy merges into the module's install path and activates its deps)
-# also installs /vendor/lib*/libRS_internal.so + libRSCpuRef/libRSDriver.
-# A physical libRS_internal.so in /vendor/lib64 is found by the sphal
-# namespace before the sphal->rs link applies; loading it in sphal fails
-# because its libft2.so dependency is LLNDK-private and only reachable via
-# the dedicated "rs" namespace. Legacy RenderScript apps (e.g.
-# de.dwd.warnapp) abort in RenderScript.create() that way.
-# Without the impl there is no RS hidl service; libRS falls back to its
-# legacy path and dlopens libRS_internal/libRSCpuRef from the rs namespace
-# (prebuilt com.android.vndk.v30 apex), where libft2 resolves fine.
-# Shipping a libft2.so copy in /vendor is NOT an option either: libft2 is
-# LLNDK and linkerconfig aborts on "duplicate: provided by default and
-# system".
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/configs/ril/sehradiomanager.conf:$(TARGET_COPY_OUT_VENDOR)/etc/sehradiomanager.conf
 
 # Sensors
 PRODUCT_PACKAGES += \
     android.hardware.sensors-service.samsung-multihal \
-    libsensorndkbridge_vendor
+    libsensorndkbridge
 
 # Telephony
 $(call inherit-product, vendor/qcom/opensource/dataservices/dataservices_vendor_product.mk)
@@ -409,6 +432,12 @@ endif
 PRODUCT_PACKAGES += \
     vndservicemanager
 
+# UDFPS
+ifeq ($(TARGET_HAS_UDFPS),true)
+$(call soong_config_set,samsung_udfps,udfps_zorder,0x20000000u)
+$(call soong_config_set,surfaceflinger,udfps_lib,//hardware/samsung/fingerprint:libudfps_extension.samsung)
+endif
+
 # USB
 PRODUCT_PACKAGES += \
     android.hardware.usb-service.qti
@@ -426,8 +455,8 @@ PRODUCT_PACKAGES += \
     hostapd \
     libwifi-hal-ctrl \
     libwifi-hal-qcom \
-    libwfdaac_vendor_vendor \
-    libwpa_client_vendor \
+    libwfdaac_vendor \
+    libwpa_client \
     WifiOverlay \
     wpa_cli \
     wpa_supplicant \
@@ -442,6 +471,7 @@ PRODUCT_COPY_FILES += \
 
 # WiFi Firmware Symlinks
 PRODUCT_PACKAGES += \
+    firmware_qca6750_WCNSS_qcom_cfg.ini_symlink \
     firmware_wlan_WCNSS_qcom_cfg.ini_symlink
 
 # Wifi Display
@@ -451,121 +481,16 @@ PRODUCT_PACKAGES += \
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(COMMON_PATH) \
+    bootable/deprecated-ota \
     hardware/google/interfaces \
     hardware/google/pixel \
-    hardware/samsung \
-    vendor/qcom/opensource/libfmjni
+    hardware/samsung
 
 # Prop files
 TARGET_SYSTEM_PROP += $(COMMON_PATH)/system.prop
 TARGET_SYSTEM_EXT_PROP += $(COMMON_PATH)/system_ext.prop
 TARGET_PRODUCT_PROP += $(COMMON_PATH)/product.prop
 TARGET_ODM_PROP += $(COMMON_PATH)/odm.prop
-
-# Vendor libraries built from source (replaces prebuilt copies in the blob list)
-PRODUCT_PACKAGES += \
-    audio.primary.default \
-    libalsautils \
-    libaudiofoundation.vendor \
-    libavservices_minijail.vendor \
-    libavservices_minijail_vendor \
-    libcamera2ndk_vendor \
-    libcodec2_hidl@1.0.vendor \
-    libcodec2_hidl@1.1.vendor \
-    libcodec2_vndk.vendor \
-    libdrm.vendor \
-    libeffects \
-    libeffectsconfig.vendor \
-    libgui_vendor \
-    libhidltransport.vendor \
-    libhwbinder.vendor \
-    libkeystore-engine-wifi-hidl \
-    libkeystore-wifi-hidl \
-    libnetfilter_conntrack \
-    libnfnetlink \
-    libopus.vendor \
-    libprotobuf-cpp-full-3.9.1-vendorcompat \
-    libprotobuf-cpp-lite-3.9.1-vendorcompat \
-    librilutils \
-    libsfplugin_ccodec_utils.vendor \
-    libsoft_attestation_cert.vendor \
-    libstagefright_amrnb_common.vendor \
-    libstagefright_bufferpool@2.0.1.vendor \
-    libstagefright_enc_common.vendor \
-    libstagefright_flacdec.vendor \
-    libstagefright_omx_utils.vendor \
-    libstagefright_softomx.vendor \
-    libstagefright_softomx_plugin.vendor \
-    libstagefright_xmlparser.vendor \
-    libstagefrighthw \
-    libtinycompress \
-    libtinyxml \
-    libvorbisidec.vendor \
-    libvpx.vendor \
-    local_time.default \
-    vendor.display.config@1.0.vendor \
-    vendor.display.config@1.1.vendor \
-    vendor.display.config@1.2.vendor \
-    vendor.display.config@1.3.vendor \
-    vendor.display.config@1.4.vendor \
-    vendor.display.config@1.5.vendor \
-    vendor.display.config@1.6.vendor \
-    vendor.display.config@1.7.vendor \
-    vendor.display.config@1.8.vendor \
-    vendor.display.config@1.9.vendor \
-    vendor.display.config@1.10.vendor \
-    vendor.display.config@1.11.vendor \
-    vendor.display.config@2.0.vendor \
-    vendor.qti.hardware.display.allocator@1.0.vendor \
-    vendor.qti.hardware.display.allocator@3.0.vendor \
-    vendor.qti.hardware.display.composer@1.0.vendor \
-    vendor.qti.hardware.display.composer@2.0.vendor \
-    vendor.qti.hardware.bluetooth_audio@2.0.vendor \
-    vendor.qti.hardware.camera.device@1.0.vendor \
-    vendor.qti.hardware.camera.postproc@1.0.vendor \
-    vendor.qti.hardware.perf@2.0.vendor \
-    vendor.qti.hardware.perf@2.1.vendor \
-    vendor.qti.hardware.perf@2.2.vendor \
-    libcld80211 \
-    liboffloadhal \
-    libdisplayconfig.qti
-
-# Signing keys (private, not tracked by repo)
-PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/lineage-priv/keys/releasekey
-PRODUCT_OTA_PUBLIC_KEYS := vendor/lineage-priv/keys/releasekey
-PRODUCT_EXTRA_RECOVERY_KEYS := vendor/lineage-priv/keys/releasekey
-
-PRODUCT_CERTIFICATE_OVERRIDES := \
-    com.android.adbd:com.android.adbd.cert \
-    com.android.adservices:com.android.adservices.cert \
-    com.android.apex.cts.shim:com.android.apex.cts.shim.cert \
-    com.android.appsearch:com.android.appsearch.cert \
-    com.android.art:com.android.art.cert \
-    com.android.btservices:com.android.btservices.cert \
-    com.android.configinfrastructure:com.android.configinfrastructure.cert \
-    com.android.conscrypt:com.android.conscrypt.cert \
-    com.android.devicelock:com.android.devicelock.cert \
-    com.android.extservices:com.android.extservices.cert \
-    com.android.healthfitness:com.android.healthfitness.cert \
-    com.android.i18n:com.android.i18n.cert \
-    com.android.ipsec:com.android.ipsec.cert \
-    com.android.media:com.android.media.cert \
-    com.android.mediaprovider:com.android.mediaprovider.cert \
-    com.android.media.swcodec:com.android.media.swcodec.cert \
-    com.android.neuralnetworks:com.android.neuralnetworks.cert \
-    com.android.ondevicepersonalization:com.android.ondevicepersonalization.cert \
-    com.android.os.statsd:com.android.os.statsd.cert \
-    com.android.permission:com.android.permission.cert \
-    com.android.resolv:com.android.resolv.cert \
-    com.android.rkpd:com.android.rkpd.cert \
-    com.android.runtime:com.android.runtime.cert \
-    com.android.scheduling:com.android.scheduling.cert \
-    com.android.sdkext:com.android.sdkext.cert \
-    com.android.tethering:com.android.tethering.cert \
-    com.android.tzdata:com.android.tzdata.cert \
-    com.android.uwb:com.android.uwb.cert \
-    com.android.virt:com.android.virt.cert \
-    com.android.wifi:com.android.wifi.cert
 
 # Inherit proprietary blobs
 $(call inherit-product, vendor/samsung/sm7225-common/sm7225-common-vendor.mk)

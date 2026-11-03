@@ -1,4 +1,5 @@
 get_prop(rild, vendor_radio_prop)
+get_prop(rild, radio_prop)
 
 allow rild block_device:dir search;
 allow rild mnt_vendor_file:dir { getattr search };
@@ -46,7 +47,14 @@ allow rild proc_net:file rw_file_perms;
 
 allow rild self:tun_socket create;
 
+dontaudit rild {
+    system_prop
+    default_prop
+}:file read;
 
+dontaudit rild vendor_default_prop:property_service set;
+dontaudit rild default_prop:property_service set;
+dontaudit rild { default_prop system_prop }:file { map open getattr };
 
 # persist.vendor.data.shs_ko_load
 set_prop(rild, vendor_data_ko_prop);
@@ -57,13 +65,3 @@ set_prop(rild, vendor_data_shsusr_prop);
 # Camera
 allow rild hal_camera_default:dir search;
 allow rild hal_camera_default:file { getattr open read };
-allow rild hal_radio_service:service_manager add;
-type_transition rild socket_device:sock_file vendor_rild_socket "qcrild";
-allow rild vendor_rild_socket:sock_file create_file_perms;
-
-# untyped default_prop reads are neverallow'd; keep denied + quiet
-dontaudit rild default_prop:file r_file_perms;
-# rild reads emservice proc entries (VND multiclient plumbing)
-allow rild emservice:dir search;
-allow rild emservice:file r_file_perms;
-dontaudit rild system_prop:file r_file_perms;

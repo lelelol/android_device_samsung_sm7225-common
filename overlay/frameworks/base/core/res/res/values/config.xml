@@ -113,13 +113,11 @@
          and one pSIM) -->
     <integer name="config_num_physical_slots">2</integer>
 
-    <!-- Color transform matrixes passed to setColorTransform are accepted by
-         SurfaceFlinger but never applied by the SDE composer on this panel
-         (verified: zero matrix shows no effect). LiveDisplay/Night Display
-         therefore cannot work, keep the accelerated path disabled. -->
-    <bool name="config_setColorTransformAccelerated">false</bool>
+    <!-- Control whether Night display is available. This should only be enabled on devices
+         that have a HWC implementation that can apply the matrix passed to setColorTransform
+         without impacting power, performance, and app compatibility (e.g. protected content). -->
     <bool name="config_nightDisplayAvailable">false</bool>
-
+    
     <!-- Flag specifying whether VoLTE should be available for carrier: independent of
          carrier provisioning. If false: hard disabled. If true: then depends on carrier
          provisioning, availability etc -->
@@ -251,8 +249,8 @@
 
     <!-- Whether the always on display mode is available. This should only be enabled
          on devices where the display has been tuned to be power efficient in DOZE and/or
-         DOZE_SUSPEND states. Disabled: LCD panel, stock ships no AOD. -->
-    <bool name="config_dozeAlwaysOnDisplayAvailable">false</bool>
+         DOZE_SUSPEND states. -->
+    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>
 
     <!-- ComponentName of a dream to show whenever the system would otherwise have
          gone to sleep.  When the PowerManager is asked to go to sleep, it will instead
@@ -261,20 +259,12 @@
          to be suspended.  When the dream ends, the system will go to sleep as usual.
          Specify the component name or an empty string if none.
          Note that doze dreams are not subject to the same start conditions as ordinary dreams.
-         Doze dreams will run whenever the power manager is in a dozing state.
-         Left empty (AOSP default): without it, DreamManagerService never starts the
-         doze dream, so KeyguardViewMediator never enters the mAodShowing path where
-         hiding the (disabled) lockscreen after DELAYED_KEYGUARD wakes the device
-         with reason BOUNCER_DOZING ~5s after every screen off. -->
-    <string name="config_dozeComponent" translatable="false"></string>
+         Doze dreams will run whenever the power manager is in a dozing state. -->
+    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>
 
     <!-- If true, the doze component is not started until after the screen has been
-         turned off and the screen off animation has been performed.
-         Disabled: on this LCD panel the ambient dream only burns power, and with the
-         lockscreen disabled the delayed-keyguard hide during doze wakes the device
-         (KeyguardViewMediator handleHide -> BOUNCER_DOZING wakeUp) right after
-         every screen off. -->
-    <bool name="config_dozeAfterScreenOffByDefault">false</bool>
+         turned off and the screen off animation has been performed. -->
+    <bool name="config_dozeAfterScreenOffByDefault">true</bool>
 
     <!-- Power Management: Specifies whether to decouple the auto-suspend state of the
          device from the display on/off state.

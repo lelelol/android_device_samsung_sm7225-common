@@ -1,8 +1,4 @@
 soong_namespace {
-    imports: [
-        "hardware/samsung",
-        "hardware/qcom-caf/sm8250",
-    ],
 }
 
 install_symlink {

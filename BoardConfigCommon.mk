@@ -31,9 +31,6 @@ BOARD_AVB_SYSTEM_ROLLBACK_INDEX_LOCATION := 1
 # QC Connectivity Engine
 BOARD_USES_QCNE := true
 
-# VNDK: ro.vndk.version=30 (stock vendor = Android 11). BOARD_VNDK_VERSION
-# has no effect here (KEEP_VNDK=false in the ap2a release config).
-
 # Platform
 PRODUCT_PLATFORM := lito
 TARGET_BOARD_PLATFORM := lito
@@ -41,15 +38,13 @@ TARGET_BOOTLOADER_BOARD_NAME := lito
 
 TARGET_NO_BOOTLOADER := true
 
-BOARD_VENDOR := samsung
-
 # Architecture
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-2a
 TARGET_CPU_ABI := arm64-v8a
 TARGET_CPU_ABI2 :=
 TARGET_CPU_VARIANT := generic
-TARGET_CPU_VARIANT_RUNTIME := cortex-a77
+TARGET_CPU_VARIANT_RUNTIME := cortex-a76
 
 # 2nd Architecture
 TARGET_2ND_ARCH := arm
@@ -57,36 +52,24 @@ TARGET_2ND_ARCH_VARIANT := armv8-2a
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := generic
-TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a55
+TARGET_2ND_CPU_VARIANT_RUNTIME := := cortex-a55
 
 # Kernel config
 TARGET_KERNEL_SOURCE        := kernel/samsung/sm7225
-# Stock Samsung defconfig from the opensource release (T736BXXS9DYF1)
-TARGET_KERNEL_CONFIG := vendor/gts7xllite_eur_openx_defconfig
-# Stock kernel was built with clang 10.0.7; r522817 (clang 18) is the
-# closest version available in the LOS 22.2 tree (r475365b was dropped)
-TARGET_KERNEL_CLANG_VERSION := r522817
+TARGET_KERNEL_CONFIG := \
+    vendor/lagoon-perf_defconfig \
+    vendor/samsung/lagoon-sec-common.config
+TARGET_KERNEL_NO_GCC	    := true
 TARGET_KERNEL_ARCH          := arm64
 TARGET_KERNEL_HEADER_ARCH   := arm64
 TARGET_LINUX_KERNEL_VERSION := 4.19
-# Stock used clang 10.0.7 + GNU as/ld 2.27 (no LLVM); LLVM_IAS breaks
-# e.g. arch/arm64/crypto/aes-modes.S (ldr q8,=imm64)
-TARGET_KERNEL_LLVM_BINUTILS := false
-# clang>=12 emits DWARF5 .file with dir operand+md5; GNU as 2.27 cannot
-# handle that -> no dir operand and DWARF4 debug info (format only, no
-# functional change). KCFLAGS applies to all kernel build trees
-# (KERNEL_OUT/DTB_OUT/DTBO_OUT). PROJECT_NAME selects the Samsung
-# techpack config (audio/display). Without it the empty filter() trick
-# resolves to lito_a42 (TAS2562) instead of lito_gts7plite (CS35L45)
-# -> sound card waits forever for tas2562.18-004c.
-# clang>=15 promotes several warnings to errors; the 4.19 tree predates
-# that (strict-prototypes, implicit-int, array-parameter, int-conversion,
-# mismatched-parameter-types, deprecated-non-prototype)
-TARGET_KERNEL_ADDITIONAL_FLAGS := KCFLAGS="-fno-dwarf-directory-asm -gdwarf-4 -Wno-unused-but-set-variable -Wno-unused-variable -Wno-strict-prototypes -Wno-implicit-int -Wno-implicit-function-declaration -Wno-array-parameter -Wno-int-conversion -Wno-mismatched-parameter-types -Wno-deprecated-non-prototype" \
-                                  PROJECT_NAME=gts7xllite
+TARGET_KERNEL_ADDITIONAL_FLAGS := \
+    LLVM=1 \
+    LLVM_IAS=1
 
 # Kernel flags
 BOARD_KERNEL_CMDLINE += console=null androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 msm_rtb.filter=0x237 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=2048 cgroup.memory=nokmem,nosocket firmware_class.path=/vendor/firmware_mnt/image loop.max_part=7 androidboot.bootdevice=1d84000.ufshc androidboot.fstab_suffix=default androidboot.boot_devices=soc/1d84000.ufshc
+#BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 BOARD_BOOTIMG_HEADER_VERSION := 2
 
 BOARD_KERNEL_BASE            := 0x00000000
@@ -95,9 +78,11 @@ BOARD_RAMDISK_OFFSET         := 0x02000000
 BOARD_KERNEL_OFFSET          := 0x00008000
 BOARD_KERNEL_TAGS_OFFSET     := 0x01e00000
 BOARD_KERNEL_IMAGE_NAME      := Image
+BOARD_KERNEL_SEPARATED_DTBO  := true
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 
 # Kernel: mkbootimgs args
+BOARD_CUSTOM_BOOTIMG := true
 BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
@@ -107,6 +92,7 @@ BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
 
 # Kernel Clang Flags
 KERNEL_CC := CC=clang
+KERNEL_TOOLCHAIN_PREFIX := aarch64-linux-gnu-
 
 # Enable LZ4 compression for ramdisks
 BOARD_RAMDISK_USE_LZ4 := true
@@ -130,17 +116,17 @@ BOARD_USES_METADATA_PARTITION        := true
 TARGET_USERIMAGES_USE_F2FS           := true
 TARGET_USERIMAGES_USE_EXT4           := true
 
-# Partition sizes, gemessen auf SM-T736B via /proc/partitions
-BOARD_DTBOIMG_PARTITION_SIZE       := 8388608      # sda33 = 8192 KiB
-BOARD_BOOTIMAGE_PARTITION_SIZE     := 100663296    # sda25 = 96 MiB
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 100663296    # sda26 = 96 MiB
-BOARD_CACHEIMAGE_PARTITION_SIZE    := 209715200    # sda30 = 200 MiB
+# Partition sizes, obtained with blockdev --getsize64
+BOARD_DTBOIMG_PARTITION_SIZE       := 8388608
+BOARD_BOOTIMAGE_PARTITION_SIZE     := 100663296
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 81788928
+BOARD_CACHEIMAGE_PARTITION_SIZE    := 629145600
 
-# Super partition: 8.388.608.000 B (sda27), LP-Gruppe "qti_dynamic_partitions"
-BOARD_SUPER_PARTITION_SIZE                     := 8388608000
-BOARD_SUPER_PARTITION_GROUPS                   := qti_dynamic_partitions
-BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST    := system vendor product odm
-BOARD_QTI_DYNAMIC_PARTITIONS_SIZE              := 8384413696  # BOARD_SUPER_PARTITION_SIZE-4MiB
+# Super partition sizes, obtained with fdisk -l /dev/block/dm-[0,1,2,3]
+BOARD_SUPER_PARTITION_SIZE                      := 10385096704
+BOARD_SUPER_PARTITION_GROUPS                    := samsung_dynamic_partitions
+BOARD_SAMSUNG_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product odm
+BOARD_SAMSUNG_DYNAMIC_PARTITIONS_SIZE           := 10380902400  # BOARD_SUPER_PARTITION_SIZE-4MiB
 BOARD_SYSTEMIMAGE_PARTITION_RESERVED_SIZE       := 3000000000
 BOARD_VENDORIMAGE_PARTITION_RESERVED_SIZE       := 400000000
 BOARD_ODMIMAGE_PARTITION_RESERVED_SIZE     	:= 50000000
@@ -175,31 +161,8 @@ $(call soong_config_set,lineage_health,fast_charge_node,/sys/class/sec/switch/af
 $(call soong_config_set,lineage_health,fast_charge_value_none,1)
 $(call soong_config_set,lineage_health,fast_charge_value_fast_charge,0)
 
-# Charging control via batt_slate_mode (0 = charging on, 1 = slate/charging off)
-TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH := /sys/class/power_supply/battery/batt_slate_mode
-TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED := 0
-TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED := 1
-TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS := false
-
 # DRM
 TARGET_ENABLE_MEDIADRM_64 := true
-
-# Shim for pre-Android-14 GraphicBufferMapper lock/unlock symbols still
-# referenced by Samsung media/camera blobs. LD_PRELOAD in the service rc files
-# does not reach the linker reliably, so the linker injects the shim into
-# whatever namespace loads the needy library.
-TARGET_LD_SHIM_LIBS := \
-    /vendor/lib64/libcodec2_vndk.so|/vendor/lib64/libui_compat_shim.so \
-    /vendor/lib64/libscaler_hw.unifunc.so|/vendor/lib64/libui_compat_shim.so \
-    /vendor/lib64/libscaler_sw.unifunc.so|/vendor/lib64/libui_compat_shim.so \
-    /vendor/lib64/libstagefright_softomx.so|/vendor/lib64/libui_compat_shim.so \
-    /vendor/lib64/unihal_main@2.15.so|/vendor/lib64/libui_compat_shim.so \
-    /vendor/lib/libcodec2_vndk.so|/vendor/lib/libui_compat_shim.so \
-    /vendor/lib/libscaler_hw.unifunc.so|/vendor/lib/libui_compat_shim.so \
-    /vendor/lib/libscaler_sw.unifunc.so|/vendor/lib/libui_compat_shim.so \
-    /vendor/lib/libstagefright_softomx.so|/vendor/lib/libui_compat_shim.so \
-    /vendor/lib/unihal_main@2.15.so|/vendor/lib/libui_compat_shim.so \
-    /vendor/lib64/libskeymaster4device.so|/vendor/lib64/libkeymaster41.so
 
 # FOD
 ifeq ($(TARGET_HAS_UDFPS),true)
@@ -243,17 +206,12 @@ DEVICE_MANIFEST_FILE := $(COMMON_PATH)/configs/manifest.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
     hardware/qcom-caf/common/vendor_framework_compatibility_matrix_legacy.xml \
-    hardware/samsung/vintf/samsung_framework_compatibility_matrix.xml \
-    vendor/lineage/config/device_framework_matrix.xml \
-    $(COMMON_PATH)/configs/framework_compatibility_matrix.xml
+    hardware/samsung/vintf/samsung_framework_compatibility_matrix.xml
 
-DEVICE_MATRIX_FILE := $(COMMON_PATH)/configs/compatibility_matrix.xml
+DEVICE_MATRIX_FILE := hardware/qcom-caf/common/compatibility_matrix.xml
 
 # Lights
 $(call soong_config_set,samsungVars,target_specific_header_path,$(COMMON_PATH)/include)
-
-# Keymaster
-TARGET_KEYMASTER_VARIANT := samsung
 
 # Media
 TARGET_USES_ION := true
@@ -292,9 +250,6 @@ BOARD_WPA_SUPPLICANT_PRIVATE_LIB_EVENT := "ON"
 WIFI_DRIVER_STATE_CTRL_PARAM := "/dev/wlan"
 WIFI_DRIVER_STATE_OFF := "OFF"
 WIFI_DRIVER_STATE_ON := "ON"
-# AIDL wifi-service (22.x): default driver + dual AP for qcwcn/qcacld
-WIFI_DRIVER_DEFAULT := qca_cld3
-QC_WIFI_HIDL_FEATURE_DUAL_AP := true
 WIFI_HIDL_FEATURE_AWARE := true
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true

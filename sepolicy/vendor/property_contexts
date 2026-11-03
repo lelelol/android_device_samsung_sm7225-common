@@ -13,6 +13,9 @@ persist.vendor.sec.fastchg_enabled               u:object_r:vendor_fastcharge_pr
 vendor.gnss.psds                                 u:object_r:vendor_gnss_psds_prop:s0
 
 # NFC
+persist.vendor.nfc.log.index                     u:object_r:vendor_nfc_prop:s0
+ro.vendor.nfc.                                   u:object_r:vendor_nfc_prop:s0
+vendor.nfc.fw.                                   u:object_r:vendor_nfc_prop:s0
 
 # Perf
 ro.vendor.extension_library                      u:object_r:vendor_mpctl_prop:s0
@@ -36,11 +39,3 @@ vendor.sys.qseecomd.                             u:object_r:vendor_qseecomd_prop
 ro.vendor.wifi.                                  u:object_r:vendor_wifi_prop:s0
 vendor.wifi.                                     u:object_r:vendor_wifi_prop:s0
 vendor.qcom.wifi.                                u:object_r:vendor_wifi_prop:s0
-
-# Vaultkeeper
-vendor.security.vaultkeeper.                   u:object_r:vendor_vaultkeeper_prop:s0
-ro.vendor.security.vaultkeeper.                u:object_r:vendor_vaultkeeper_prop:s0
-
-
-# Snaplite cache
-persist.vendor.snaplite                        u:object_r:vendor_snap_prop:s0
