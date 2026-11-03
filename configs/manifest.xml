@@ -513,4 +513,8 @@
         <name>vendor.samsung.hardware.snap</name>
         <fqname>ISehSnap/default</fqname>
     </hal>
+    <hal format="aidl">
+        <name>vendor.samsung.hardware.media.converter</name>
+        <fqname>ISehColorConverterStore/default</fqname>
+    </hal>
 </manifest>
