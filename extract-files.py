@@ -71,6 +71,9 @@ blob_fixups: blob_fixups_user_type = {
     ('vendor/etc/seccomp_policy/samsung.software.media.c2-base-policy',
      'vendor/etc/seccomp_policy/codec2.vendor.base-arm.policy'): blob_fixup()
         .regex_replace(r'(?m)^mremap: arg3 == 3$', 'mremap: arg3 == 3 || arg3 == MREMAP_MAYMOVE'),
+    # VNDK v30's common-V1-ndk_platform is gone; V2-ndk exports the same NativeHandle parcel ABI.
+    'vendor/lib64/vendor.samsung.hardware.media.converter-V1-ndk_platform.so': blob_fixup()
+        .replace_needed('android.hardware.common-V1-ndk_platform.so', 'android.hardware.common-V2-ndk.so'),
     'vendor/lib64/libSecC2ComponentStore.so': blob_fixup()
         .add_needed('libc2compat_shim.so'),
     ('vendor/lib/hw/android.hardware.audio@6.0-impl.so', 'vendor/lib64/hw/android.hardware.audio@6.0-impl.so',
