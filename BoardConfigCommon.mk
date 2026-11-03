@@ -64,13 +64,19 @@ TARGET_KERNEL_NO_GCC	    := true
 TARGET_KERNEL_ARCH          := arm64
 TARGET_KERNEL_HEADER_ARCH   := arm64
 TARGET_LINUX_KERNEL_VERSION := 4.19
+# PROJECT_NAME selects the Samsung techpack config (audio/display). Without it the
+# filter() chain in techpack/audio/Makefile falls back to a TAS2562 config instead of
+# lito_gts7plite (CS35L45), and the sound card waits forever for tas2562 (as on 22.2).
 TARGET_KERNEL_ADDITIONAL_FLAGS := \
     LLVM=1 \
-    LLVM_IAS=1
+    LLVM_IAS=1 \
+    PROJECT_NAME=gts7xllite
 
 # Kernel flags
 BOARD_KERNEL_CMDLINE += console=null androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 msm_rtb.filter=0x237 service_locator.enable=1 androidboot.usbcontroller=a600000.dwc3 swiotlb=2048 cgroup.memory=nokmem,nosocket firmware_class.path=/vendor/firmware_mnt/image loop.max_part=7 androidboot.bootdevice=1d84000.ufshc androidboot.fstab_suffix=default androidboot.boot_devices=soc/1d84000.ufshc
 #BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+# T735 DEBUG: no /dev/kmsg ratelimit, so bpfloader/netd output is not dropped. Remove for release builds.
+BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 BOARD_BOOTIMG_HEADER_VERSION := 2
 
 BOARD_KERNEL_BASE            := 0x00000000

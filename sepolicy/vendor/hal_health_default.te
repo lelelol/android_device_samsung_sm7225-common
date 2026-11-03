@@ -20,3 +20,6 @@ binder_call(hal_health_default, hal_thermal_default)
 # SysFS Wakeup
 allow hal_health_default sysfs_wakeup:file r_file_perms;
 allow hal_health_default sysfs_wakeup:dir r_dir_perms;
+
+# Restored from lineage-22.2 (SM-T735)
+allow hal_health_default sysfs_battery:dir search;

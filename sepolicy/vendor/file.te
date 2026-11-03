@@ -85,3 +85,6 @@ type vendor_keymaster_data_file, file_type, data_file_type;
 type dak_efs_file, file_type;
 type prov_efs_file, file_type;
 type wifi_efs_file, file_type;
+
+# Restored from lineage-22.2 (SM-T735)
+type gnss_vendor_data_file, file_type, data_file_type;

@@ -39,3 +39,8 @@ vendor.sys.qseecomd.                             u:object_r:vendor_qseecomd_prop
 ro.vendor.wifi.                                  u:object_r:vendor_wifi_prop:s0
 vendor.wifi.                                     u:object_r:vendor_wifi_prop:s0
 vendor.qcom.wifi.                                u:object_r:vendor_wifi_prop:s0
+
+# Restored from lineage-22.2 (SM-T735)
+vendor.security.vaultkeeper.                   u:object_r:vendor_vaultkeeper_prop:s0
+ro.vendor.security.vaultkeeper.                u:object_r:vendor_vaultkeeper_prop:s0
+persist.vendor.snaplite                        u:object_r:vendor_snap_prop:s0

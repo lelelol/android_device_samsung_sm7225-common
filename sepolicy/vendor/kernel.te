@@ -22,3 +22,7 @@ allow kernel app_efs_file:file { read open getattr };
 
 # /sys/devices/virtual/lcd/panel/
 allow kernel sysfs_lcd_writable:file { open };
+
+# Restored from lineage-22.2 (SM-T735)
+allow kernel self:capability kill;
+allow kernel sysfs_sec_key:dir search;

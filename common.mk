@@ -39,15 +39,12 @@ PRODUCT_PACKAGES += \
     fstab.ramplus \
     init.qcom.rc \
     init.qcom.recovery.rc \
-    init.qcom.usb.rc \
     init.qti.media.rc \
     init.qti.media.sh \
     init.samsung.battery.rc \
     init.samsung.bsp.rc \
     init.samsung.display.rc \
     init.samsung.rc \
-    init.fingerprint.rc \
-    init.fod.rc \
     init.ramplus.rc \
     init.target.rc \
     ipa_fws.rc \
@@ -55,7 +52,6 @@ PRODUCT_PACKAGES += \
     wifi_qcom.rc \
     wifi_sm7225.rc \
     init.audio.samsung.rc \
-    init.nfc.samsung.rc \
     init.vendor.onebinary.rc \
     vendor.samsung.rilchip.qcom.rc \
     init.vendor.rilcommon.rc \
@@ -145,10 +141,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.bluetooth.audio-impl
 
-# Camera
+# Camera: stock vendor.samsung.hardware.camera.provider@4.0 (HIDL legacy/0) only
 PRODUCT_PACKAGES += \
-    android.hardware.camera.provider-service.samsung
-
+    libcamera_helper_v1_0_shim
 $(call soong_config_set_bool,samsungCameraVars,needs_sec_reserved_field,true)
 $(call soong_config_set,samsungCameraVars,extra_ids,54) # ID=54 is macro
 
@@ -179,6 +174,7 @@ PRODUCT_PACKAGES += \
     vendor.qti.hardware.memtrack-service \
     gralloc.qcom \
     libsdmcore \
+    libsdmextension \
     libsdedrm
 
 ifneq ($(TARGET_IS_TABLET),true)
@@ -198,14 +194,7 @@ PRODUCT_PACKAGES += \
 # File System
 TARGET_FS_CONFIG_GEN := $(COMMON_PATH)/config.fs
 
-# Fingerprint
-ifeq ($(TARGET_HAS_UDFPS),true)
-PRODUCT_PACKAGES += \
-    android.hardware.biometrics.fingerprint@2.3-service-samsung.sm7225
-else
-PRODUCT_PACKAGES += \
-    android.hardware.biometrics.fingerprint-service.samsung
-endif
+# gts7xllite has no fingerprint sensor
 
 # FM
 PRODUCT_PACKAGES += \
@@ -234,11 +223,16 @@ PRODUCT_ENABLE_UFFD_GC := false
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/keylayout/sec_touchscreen.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/sec_touchscreen.kl
 
+# Input device config (S Pen)
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/configs/idc/sec_e-pen.idc:$(TARGET_COPY_OUT_VENDOR)/usr/idc/sec_e-pen.idc
+
 # Keymaster
 PRODUCT_PACKAGES += \
     android.hardware.keymaster@4.0-service.samsung
 
 $(call soong_config_set,samsungVars,target_keymaster4_library,//vendor/samsung/sm7225-common:libskeymaster4device)
+$(call soong_config_set_bool,libion,legacy_impl,true)
 
 # Light
 PRODUCT_PACKAGES += \
@@ -284,31 +278,14 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video_le.xml
 
-# NFC
+# Shims (gts7xllite has no NFC)
 PRODUCT_PACKAGES += \
-    com.android.nfc_extras \
     libbase_shim \
     libaudiotypeconv_shim \
     libc2compat_shim \
-    libui_compat_shim \
-    nqnfcinfo \
-    Tag
+    libui_compat_shim
 
-PRODUCT_COPY_FILES += \
-    device/samsung/sm7225-common/configs/nfc/libnfc-nxp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nxp.conf \
-    device/samsung/sm7225-common/configs/nfc/libnfc-nxp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nxp_RF.conf
 
-# NFC Permissions
-PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.nfc.ese.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.ese.xml \
-    frameworks/native/data/etc/android.hardware.nfc.hcef.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.hcef.xml \
-    frameworks/native/data/etc/android.hardware.se.omapi.ese.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.se.omapi.ese.xml \
-    frameworks/native/data/etc/android.hardware.nfc.uicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.uicc.xml \
-    frameworks/native/data/etc/android.hardware.se.omapi.uicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.se.omapi.uicc.xml \
-    frameworks/native/data/etc/com.nxp.mifare.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.nxp.mifare.xml \
-    frameworks/native/data/etc/android.hardware.nfc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.xml \
-    frameworks/native/data/etc/android.hardware.nfc.hce.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.hce.xml \
-    frameworks/native/data/etc/com.android.nfc_extras.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.android.nfc_extras.xml
 
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/task_profiles.json:$(TARGET_COPY_OUT_VENDOR)/etc/task_profiles.json
@@ -319,13 +296,11 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.audio.pro.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.audio.pro.xml \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
-    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.flash-autofocus.xml \
+    frameworks/native/data/etc/android.hardware.camera.autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.autofocus.xml \
     frameworks/native/data/etc/android.hardware.camera.front.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.camera.full.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.full.xml \
     frameworks/native/data/etc/android.hardware.camera.raw.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.raw.xml \
-    frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.location.gps.xml \
-    frameworks/native/data/etc/android.hardware.nfc.uicc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.uicc.xml \
     frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml \
     frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.accelerometer.xml \
     frameworks/native/data/etc/android.hardware.sensor.compass.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.compass.xml \
@@ -484,6 +459,7 @@ PRODUCT_SOONG_NAMESPACES += \
     bootable/deprecated-ota \
     hardware/google/interfaces \
     hardware/google/pixel \
+    hardware/google/pixel/power-libperfmgr \
     hardware/samsung
 
 # Prop files
@@ -491,6 +467,35 @@ TARGET_SYSTEM_PROP += $(COMMON_PATH)/system.prop
 TARGET_SYSTEM_EXT_PROP += $(COMMON_PATH)/system_ext.prop
 TARGET_PRODUCT_PROP += $(COMMON_PATH)/product.prop
 TARGET_ODM_PROP += $(COMMON_PATH)/odm.prop
+
+# USB: QTI reference init.qcom.usb.rc/.sh and properties (the custom rc raced
+# init.usb.configfs.rc on the UDC and kept resetting the gadget)
+$(call inherit-product, vendor/qcom/opensource/usb/vendor_product.mk)
+
+# Vendor libraries lineage-22.2 shipped for the A11 blobs (none of them installed otherwise)
+PRODUCT_PACKAGES += \
+    android.hardware.bluetooth.audio@2.0-impl \
+    libalsautils \
+    libcrypto_shim.vendor \
+    libgui_vendor \
+    libkeymaster41.vendor \
+    libkeystore-wifi-hidl \
+    libopus.vendor \
+    libstagefright_amrnb_common.vendor \
+    libstagefright_enc_common.vendor \
+    libstagefright_omx_utils.vendor \
+    libstagefright_softomx_plugin.vendor \
+    libstagefright_xmlparser.vendor \
+    libstagefrighthw \
+    libtinyxml \
+    libvorbisidec.vendor \
+    libvpx.vendor \
+    vendor.display.config@1.10.vendor \
+    vendor.display.config@1.11.vendor \
+    vendor.qti.hardware.camera.device@1.0.vendor \
+    vendor.qti.hardware.display.allocator@1.0.vendor \
+    vendor.qti.hardware.display.composer@1.0.vendor \
+    vendor.qti.hardware.display.composer@2.0.vendor
 
 # Inherit proprietary blobs
 $(call inherit-product, vendor/samsung/sm7225-common/sm7225-common-vendor.mk)
@@ -501,3 +506,7 @@ PRODUCT_COPY_FILES += \
 
 # VINTF: 4.19 kernel is older than any FCM kernel requirement
 PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
+
+# T735 DEBUG ONLY: boot log persistence (remove for release)
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/init/t735_debuglog.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/t735_debuglog.rc

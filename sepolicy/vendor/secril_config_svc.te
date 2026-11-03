@@ -31,3 +31,6 @@ set_prop(secril_config_svc, vendor_radio_prop)
 
 # ro.multisim.*
 dontaudit secril_config_svc default_prop:property_service set;
+
+# Restored from lineage-22.2 (SM-T735)
+dontaudit secril_config_svc system_prop:file r_file_perms;

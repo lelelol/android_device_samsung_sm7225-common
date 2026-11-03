@@ -9,3 +9,5 @@ allow system_server {
     proc_last_kmsg
 }:file r_file_perms;
 
+# Restored from lineage-22.2 (SM-T735)
+get_prop(system_server, wifi_hal_prop)

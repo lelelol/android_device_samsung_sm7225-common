@@ -1,0 +1,12 @@
+# Android 17 dropped the platform-wide "allow domain ion_device:chr_file r_file_perms" rule.
+# The Android 11 era T735 blobs (QSEECom/keymaster, fastrpc sensors, gralloc1, CamX, codecs)
+# still allocate from /dev/ion, so restore it for the vendor side.
+allow domain ion_device:chr_file r_file_perms;
+
+# qseecomd (tee) flags QSEECom readiness for keymaster/vold
+set_prop(tee, vendor_qseecomd_prop)
+
+# first-stage fsck of vendor partitions (dsp, efs, cache, persist mounts)
+allow fsck dsp_block_device:blk_file rw_file_perms;
+allow fsck { efs_file cache_file adsprpcd_file }:dir getattr;
+allow fsck sysfs_battery:dir search;

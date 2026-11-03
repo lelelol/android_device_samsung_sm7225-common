@@ -5,3 +5,7 @@ allow vendor_hal_gnss_qti sysfs_battery:dir search;
 allow vendor_hal_gnss_qti sysfs_battery:file rw_file_perms;
 
 dontaudit vendor_hal_gnss_qti { default_prop system_prop }:file { getattr map open read };
+
+# Restored from lineage-22.2 (SM-T735)
+allow vendor_hal_gnss_qti sysfs_battery:lnk_file read;
+dontaudit vendor_hal_gnss_qti system_prop:file r_file_perms;

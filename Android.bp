@@ -1,4 +1,8 @@
 soong_namespace {
+    imports: [
+        // display_headers / libsdmutils for sdmext_stub (libsdmextension)
+        "hardware/qcom-caf/sm8250",
+    ],
 }
 
 install_symlink {

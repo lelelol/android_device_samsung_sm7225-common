@@ -1,0 +1,15 @@
+# T735 DEBUG: persist logs to /metadata (survives hard resets). Remove for release builds.
+service t735log /system/bin/logcat -b all -v threadtime -f /metadata/t735_logcat.txt -r 16384 -n 4
+    user root
+    group root log
+    seclabel u:r:su:s0
+    disabled
+
+service t735dmesg /system/bin/sh -c "while true; do dmesg > /metadata/t735_kmsg.txt; sleep 2; done"
+    user root
+    seclabel u:r:su:s0
+    disabled
+
+on post-fs
+    start t735log
+    start t735dmesg

@@ -15,7 +15,7 @@
       "Path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
       "Values": [
         "9999999",
-	"1708800",
+        "1708800",
         "1248000",
         "576000"
       ],
@@ -36,7 +36,7 @@
       "Path": "/sys/devices/system/cpu/cpu6/cpufreq/scaling_min_freq",
       "Values": [
         "9999999",
-	"1900800",
+        "1900800",
         "652800"
       ],
       "ResetOnInit": true
@@ -88,31 +88,31 @@
       "ResetOnInit": true
     },
     {
-        "Name": "TouchscreenEnable",
-        "Path": "/sys/class/sec/tsp/input/enabled",
-        "Values": [
-            "1",
-            "0"
-        ],
-        "ResetOnInit": true
+      "Name": "TouchscreenEnable",
+      "Path": "/sys/class/sec/tsp/input/enabled",
+      "Values": [
+        "1",
+        "0"
+      ],
+      "ResetOnInit": true
     },
     {
-        "Name": "DoubleTapToWakeEnable",
-        "Path": "/sys/class/sec/tsp/cmd",
-        "Values": [
-            "aot_enable,0",
-            "aot_enable,1"
-        ],
-        "DefaultIndex": 0
+      "Name": "DoubleTapToWakeEnable",
+      "Path": "/sys/class/sec/tsp/cmd",
+      "Values": [
+        "aot_enable,0",
+        "aot_enable,1"
+      ],
+      "DefaultIndex": 0
     },
     {
-        "Name": "BatteryLcdStatus",
-        "Path": "/sys/class/power_supply/battery/lcd",
-        "Values": [
-            "1",
-            "0"
-        ],
-        "ResetOnInit": true
+      "Name": "BatteryLcdStatus",
+      "Path": "/sys/class/power_supply/battery/lcd",
+      "Values": [
+        "1",
+        "0"
+      ],
+      "ResetOnInit": true
     },
     {
       "Name": "CPUBWHystTriggerCount",
@@ -364,12 +364,6 @@
     },
     {
       "PowerHint": "INTERACTIVE",
-      "Node": "LightSensorEnable",
-      "Duration": 0,
-      "Value": "1"
-    },
-    {
-      "PowerHint": "INTERACTIVE",
       "Node": "BatteryLcdStatus",
       "Duration": 0,
       "Value": "1"
@@ -379,24 +373,6 @@
       "Node": "DoubleTapToWakeEnable",
       "Duration": 0,
       "Value": "aot_enable,1"
-    },
-    {
-      "PowerHint": "Flipendo",
-      "Node": "CPULittleClusterMaxFreq",
-      "Duration": 0,
-      "Value": "1516800"
-    },
-    {
-      "PowerHint": "Flipendo",
-      "Node": "CPUBigClusterMaxFreq",
-      "Duration": 0,
-      "Value": "1651200"
-    },
-    {
-      "PowerHint": "Flipendo",
-      "Node": "CPUBigPlusClusterMaxFreq",
-      "Duration": 0,
-      "Value": "1516800"
     }
   ]
 }

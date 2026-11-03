@@ -8,3 +8,7 @@ vendor_internal_prop(vendor_qseecomd_prop)
 vendor_internal_prop(vendor_gnss_psds_prop)
 
 # NFC
+
+# Restored from lineage-22.2 (SM-T735)
+vendor_internal_prop(vendor_snap_prop)
+vendor_internal_prop(vendor_vaultkeeper_prop)

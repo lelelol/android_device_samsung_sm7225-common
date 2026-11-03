@@ -65,12 +65,6 @@ prebuilt_etc {
     recovery: true,
 }
 
-prebuilt_etc {
-    name: "init.qcom.usb.rc",
-    src: "init.qcom.usb.rc",
-    sub_dir: "init/hw",
-}
-
 
 
 prebuilt_etc {

@@ -64,6 +64,18 @@ blob_fixups: blob_fixups_user_type = {
      'vendor/lib/libscaler_hw.unifunc.so', 'vendor/lib64/libscaler_hw.unifunc.so',
      'vendor/lib/libscaler_sw.unifunc.so', 'vendor/lib64/libscaler_sw.unifunc.so'): blob_fixup()
         .add_needed('libui_compat_shim.so'),
+    'vendor/lib/hw/audio.primary.lito.so': blob_fixup()
+        .patch_file('patches/audio_primary_lito_fixup.py'),
+    # Android 11 codec seccomp policies only allow mremap(MAYMOVE|FIXED); current bionic/scudo
+    # also calls mremap(MAYMOVE), so the codec services died with SIGSYS at start-up.
+    ('vendor/etc/seccomp_policy/samsung.software.media.c2-base-policy',
+     'vendor/etc/seccomp_policy/codec2.vendor.base-arm.policy'): blob_fixup()
+        .regex_replace(r'(?m)^mremap: arg3 == 3$', 'mremap: arg3 == 3 || arg3 == MREMAP_MAYMOVE'),
+    # Android 11 camera blobs import common::V1_0::helper symbols that current AOSP renamed to
+    # common::helper (same ABI); camera_shim/ re-exports the old names.
+    ('vendor/lib64/vendor.samsung.hardware.camera.provider@4.0-legacy.so',
+     'vendor/lib64/vendor.samsung.hardware.camera.device@5.0-impl.so'): blob_fixup()
+        .add_needed('libcamera_helper_v1_0_shim.so'),
     'vendor/lib64/libSecC2ComponentStore.so': blob_fixup()
         .add_needed('libc2compat_shim.so'),
     ('vendor/lib/hw/android.hardware.audio@6.0-impl.so', 'vendor/lib64/hw/android.hardware.audio@6.0-impl.so',

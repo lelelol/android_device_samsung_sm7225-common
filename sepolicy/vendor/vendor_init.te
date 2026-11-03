@@ -19,3 +19,10 @@ dontaudit vendor_init default_prop:file read;
 dontaudit vendor_init default_prop:property_service set;
 
 allow vendor_init vts_status_prop:file { read };
+
+# Restored from lineage-22.2 (SM-T735)
+dontaudit vendor_init build_prop:property_service set;
+dontaudit vendor_init config_prop:property_service set;
+dontaudit vendor_init shell_prop:property_service set;
+set_prop(vendor_init, vendor_cnd_prop)
+set_prop(vendor_init, vendor_mm_parser_prop)
