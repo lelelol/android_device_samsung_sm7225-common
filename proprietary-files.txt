@@ -195,7 +195,8 @@ vendor/etc/init/vendor.qti.qspmhal@1.0-service.rc
 vendor/etc/init/vendor.qti.rmt_storage.rc
 vendor/etc/init/vendor.qti.tftp.rc
 vendor/etc/init/vendor.samsung.hardware.authfw@1.0-service.rc:vendor/etc/init/hw/vendor.samsung.hardware.authfw@1.0-service.rc
-vendor/etc/init/vendor.samsung.hardware.biometrics.face@3.0-service.rc
+# face HAL not declared in VINTF and unused by the framework: keep it from crash-looping
+#vendor/etc/init/vendor.samsung.hardware.biometrics.face@3.0-service.rc
 vendor/etc/init/vendor.samsung.hardware.camera.provider@4.0-service_64.rc:vendor/etc/init/hw/vendor.samsung.hardware.camera.provider@4.0-service_64.rc
 vendor/etc/init/vendor.samsung.hardware.hqm@1.0-service.rc:vendor/etc/init/hw/vendor.samsung.hardware.hqm@1.0-service.rc
 vendor/etc/init/vendor.samsung.hardware.media.converter@1.0-service.rc
