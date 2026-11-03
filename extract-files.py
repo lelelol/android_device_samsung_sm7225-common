@@ -86,8 +86,11 @@ blob_fixups: blob_fixups_user_type = {
         .add_needed('libbase_shim.so'),
     ('vendor/lib64/libdpps.so'): blob_fixup()
         .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
+    # SM-T735 blob: RegisterIPostProcService() reconfigures the provider's already started HIDL
+    # threadpool and current libhidlbase aborts; NOP the configureRpcThreadpool(4, true) call.
     'vendor/lib64/vendor.qti.hardware.camera.postproc@1.0-service-impl.so': blob_fixup()
-        .sig_replace('9A 0A 00 94', '1F 20 03 D5'),
+        .sig_replace('9A 0A 00 94', '1F 20 03 D5')
+        .sig_replace('80 00 80 52 21 00 80 52 CE 09 00 94', '80 00 80 52 21 00 80 52 1F 20 03 D5'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
