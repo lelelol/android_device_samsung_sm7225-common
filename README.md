@@ -1,6 +1,6 @@
 # Device configuration for Snapdragon 750G (SM7225) SOC Devices
 
-Branch `lineage-24.0` is the common tree of the unofficial **LineageOS 24.0 (Android 17)** port for
+Branch `lineage-24.0` is the common tree of the unofficial **LineageOS 24.0 (Android 17)** port fo
 the Samsung Galaxy Tab S7 FE LTE (**SM-T735**, `gts7xllite`). It is tested on that device only.
 See [android_device_samsung_gts7xllite](https://github.com/lelelol/android_device_samsung_gts7xllite/tree/lineage-24.0)
 for the full list of repositories, status and credits.
@@ -11,7 +11,8 @@ Notable lineage-24.0 changes (one commit each):
 - Samsung VINTF declarations (camera.provider 2.6, snap, HDCP, media converter), stock camera
   device impls, gatekeeper SELinux, media.converter relinked against common-V2-ndk;
 - battery: no face HAL / cass restart loops, stock swap readahead, powerhint L3 nodes and GPU floor;
-- the lineage-22.2 LCD overlay tweaks (no AOD, no doze dream, GPU color transform).
+- the lineage-22.2 LCD overlay tweaks (no AOD, no doze dream, GPU color transform);
+- Bluetooth: restored classic Bluetooth profile flags (`product.prop`), fixed A2DP audio policy routing (v7.0 Bluetooth HAL config, removed broken legacy includes), and set 120s AudioFlinger standby.
 
 > **Vibe-coded**: written with heavy help from an AI coding assistant (Claude Code). Reviews welcome.
 
