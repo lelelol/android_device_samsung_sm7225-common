@@ -53,7 +53,7 @@ TARGET_2ND_ARCH_VARIANT := armv8-2a
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := generic
-TARGET_2ND_CPU_VARIANT_RUNTIME := := cortex-a55
+TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a55
 
 # Kernel config
 TARGET_KERNEL_SOURCE        := kernel/samsung/sm7225
